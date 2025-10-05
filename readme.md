@@ -1,17 +1,17 @@
 # Receipt Scanner App
 
-A React Native Expo app that scans receipts, extracts key details using Google Gemini API, and stores results locally.
+A React Native Expo application that leverages AI to scan receipts, extract key financial details, and provide insightful expense tracking—all stored securely on your device.
 
 ## Features
 
-- Scan receipts using device camera/gallery
-- Extract vendor, total, tax, date, and category using AI
-- View and manage all scanned receipts
-- Monthly expense summary with charts (bonus feature)
+- Intelligent Receipt Scanning: Capture receipts via camera or gallery
+- AI-Powered Data Extraction: Automatically extract vendor, total amount, tax, date, and expense category
+- Local Data Management: View, organize, and delete all scanned receipts
+- Expense Analytics: Visual monthly summaries with interactive charts and category breakdowns
 
 ## Setup Instructions
 
-1. **Clone the repository**
+1. **Clone and Install Dependencies**
 
 ```bash
    git clone https://github.com/Roohan-gm/receipt-scanner-app.git
@@ -21,77 +21,63 @@ A React Native Expo app that scans receipts, extracts key details using Google G
    npm install
 ```
 
-Go to Google AI Studio
-Create a new project and get your API key
+2.**Go to Google AI Studio**
 
-API used: gemini-2.5-flash-lite
-
-Create a .env file in the project root:
+ 1. Visit Google AI Studio
+ 2. Create a new project and generate your API key
+ 3. Create a .env file in your project root:
 
 ```bash
 EXPO_PUBLIC_GEMINI_API_KEY=your_api_key_here
 ```
 
+"Note: The application uses the gemini-2.5-flash-lite model for optimal performance and cost efficiency."
+
+3.**Launch the Application**
+
 ```bash
    npx expo start
 ```
 
-Limitations and Assumptions of the Receipt Scanner App
+"Scan the QR code using Expo Go on your mobile device, or run on a simulator with npx expo start --ios or npx expo start --android."
 
-1. AI/ML Model Limitations
+## Limitations and Assumptions of the Receipt Scanner App
 
-Image Quality Dependency: Gemini API requires clear, well-lit, non-blurry receipt images. Poor quality images may result in inaccurate or failed extraction
-Receipt Format Variability: Works best with standard retail receipts; may struggle with:
-Handwritten receipts
-Unusual layouts or non-standard formats
-Receipts in languages other than English
-Extremely dense or cluttered receipts
-Field Extraction Accuracy: The AI may misinterpret or miss fields like vendor name, total amount, or date depending on receipt formatting
+AI/ML Model Constraints
 
-1. API Constraints
+- Image Quality Requirements: Optimal performance requires clear, well-lit, non-blurry receipt images
+- Format Compatibility: Best suited for standard retail receipts; may encounter challenges with:
+  - Handwritten or non-standard receipt formats
+  - Non-English language receipts
+  - Highly dense or cluttered layouts
+- Extraction Accuracy: Field recognition (vendor, total, date) may vary based on receipt formatting and quality
 
-Internet Dependency: Requires active internet connection for AI processing (offline scanning not possible)
-Rate Limits: Google Gemini free tier has quotas (60 requests/minute, 1500 requests/day)
-API Costs: Heavy usage may incur costs beyond free tier limits
-API Reliability: Dependent on Google's API uptime and availability
+API and Infrastructure
 
-1. Platform & Device Limitations
+- Connectivity Dependency: Requires active internet connection for AI processing
+- Usage Quotas: Subject to Google Gemini free tier limits (60 requests/minute, 1,500 requests/day)
+- Cost Considerations: Extended usage beyond free tier may incur charges
 
-Camera Quality: Lower-end device cameras may produce poor quality images affecting accuracy
-Storage Limitations: AsyncStorage has size limits (~6MB on Android, larger on iOS) - not suitable for large-scale receipt storage
-Performance: Processing large images or multiple receipts simultaneously may cause performance issues on older devices
+Platform Considerations
 
-1. Data Handling Assumptions
+- Device Performance: Image processing performance may vary on older or lower-end devices
+- Storage Capacity: Utilizes AsyncStorage with platform-specific storage limits (~6MB on Android)
 
-Date Format: Assumes receipts use standard date formats (MM/DD/YYYY, DD/MM/YYYY, YYYY-MM-DD)
-Currency: Extracts numeric values only; assumes decimal format but works with any currency symbol context
-Category Classification: Limited to 6 predefined categories; may misclassify unusual or niche purchases
-Missing Fields: Uses fallback values ("N/A" for strings, "0" for numbers) when fields aren't found
+Data Handling
 
-1. Security & Privacy Concerns
+- Date Formats: Supports standard date formats (MM/DD/YYYY, DD/MM/YYYY, YYYY-MM-DD)
+- Currency Agnostic: Extracts numeric values independent of currency symbols
+- Category Classification: Predefined categories include Food & Drinks, Groceries, Transportation, Entertainment, Shopping, and Other
 
-API Key Exposure: API key is embedded in client code (security risk for production apps)
-Unencrypted Storage: AsyncStorage stores data in plain text - not suitable for sensitive financial information
-Image Privacy: Receipt images containing personal information are sent to Google's servers
-No Authentication: Anyone with device access can view all stored receipts
+Security and Privacy
 
-1. User Experience Constraints
+- Local Storage: All data remains on-device with no external transmission beyond AI processing
+- Development Security: API key exposure in client code is acceptable for personal use but not recommended for production deployment
 
-Manual Image Selection: Users must manually select/capture images; no automatic receipt detection
-No Image Preprocessing: No automatic image enhancement, rotation correction, or perspective correction
-Limited Error Recovery: Failed extractions require complete re-scanning; no manual correction interface
-No Duplicate Detection: Doesn't detect or prevent duplicate receipt entries
+User Experience
 
-1. Data Management Limitations
+- Manual Processing: Requires user-initiated image capture and processing
+- Data Integrity: No duplicate detection or manual field correction capabilities
+- Analytics Scope: Monthly expense tracking with basic visualization capabilities
 
-Local Storage Only: No cloud backup or synchronization across devices
-No Export Functionality: Can't export receipt data to CSV, PDF, or other formats
-Limited Filtering: Monthly view only; no weekly, quarterly, or custom date range filtering
-No Receipt Details: Only stores extracted fields; original receipt images aren't saved
-
-1. Chart & Analytics Limitations
-
-Basic Visualizations: Limited to pie and bar charts; no advanced analytics or trends
-Current Month Focus: Historical data requires manual month navigation
-No Budget Tracking: Doesn't support budget limits or spending alerts
-Static Categories: Categories are hardcoded; users can't create custom categories
+This application is designed as a personal expense management tool and serves as an excellent foundation for more advanced financial tracking solutions.
