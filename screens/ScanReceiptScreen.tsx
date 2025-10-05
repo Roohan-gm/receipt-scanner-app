@@ -1,115 +1,210 @@
 import { useState } from 'react';
-import { View, Alert } from 'react-native';
-import { Button, Card, Text } from 'react-native-paper';
+import { View, StyleSheet, Alert, Image } from 'react-native';
+import { Button, Text, Surface, Divider } from 'react-native-paper';
 import * as ImagePicker from 'expo-image-picker';
 import { extractReceiptData } from '../utils/geminiApi';
 import { Receipt, saveReceipt } from '../utils/storage';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
 export default function ScanReceiptScreen() {
   const [imageUri, setImageUri] = useState<string | null>(null);
   const [receiptData, setReceiptData] = useState<Receipt | null>(null);
   const [loading, setLoading] = useState(false);
 
-  const pickImage = async () => {
-    // Request permission
+  /* ---------- permission helpers ---------- */
+  const requestCameraPermission = async () => {
+    const { status } = await ImagePicker.requestCameraPermissionsAsync();
+    return status === 'granted';
+  };
+
+  const requestGalleryPermission = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (status !== 'granted') {
-      Alert.alert('Permission denied', 'Sorry, we need camera roll permissions to make this work!');
+    return status === 'granted';
+  };
+
+  /* ---------- image pickers ---------- */
+  const pickFromGallery = async () => {
+    if (!(await requestGalleryPermission())) {
+      Alert.alert('Permission required', 'Gallery access is needed to pick an image.');
       return;
     }
-
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: 'images',
       allowsEditing: true,
       aspect: [4, 5],
       quality: 0.7,
     });
-
-    if (!result.canceled) {
-      setImageUri(result.assets[0].uri);
-      setReceiptData(null);
-    }
+    if (!result.canceled) setImageUri(result.assets[0].uri);
   };
 
-  const scanReceipt = async () => {
-    if (!imageUri) {
-      Alert.alert('No image selected', 'Please select an image first');
+  const takePhoto = async () => {
+    if (!(await requestCameraPermission())) {
+      Alert.alert('Permission required', 'Camera access is needed to take a photo.');
       return;
     }
+    const result = await ImagePicker.launchCameraAsync({
+      mediaTypes: 'images',
+      allowsEditing: true,
+      aspect: [4, 5],
+      quality: 0.7,
+    });
+    if (!result.canceled) setImageUri(result.assets[0].uri);
+  };
 
+  /* ---------- scan & save ---------- */
+  const scanReceipt = async () => {
+    if (!imageUri) return Alert.alert('No image', 'Please select or take a picture first.');
     setLoading(true);
     try {
-      // Convert image to base64
       const base64 = await convertImageToBase64(imageUri);
-
-      // Extract data using Gemini
       const data = await extractReceiptData(base64);
-
-      // Save to local storage
-      const savedReceipt = await saveReceipt(data);
-      setReceiptData(savedReceipt);
-    } catch (error: any) {
-      Alert.alert('Error', error.message);
+      const saved = await saveReceipt(data);
+      setReceiptData(saved);
+    } catch (err: any) {
+      Alert.alert('Scan failed', err.message);
     } finally {
       setLoading(false);
     }
   };
 
   const convertImageToBase64 = async (uri: string): Promise<string> => {
-    const response = await fetch(uri);
-    const blob = await response.blob();
+    const res = await fetch(uri);
+    const blob = await res.blob();
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
-      reader.onloadend = () => {
-        const result = reader.result as string; // data:URL is always string here
-        resolve(result.split(',')[1]);
-      };
+      reader.onloadend = () => resolve((reader.result as string).split(',')[1]);
       reader.onerror = reject;
       reader.readAsDataURL(blob);
     });
   };
 
+  /* ---------- UI ---------- */
   return (
-    <View style={{ flex: 1, padding: 16, backgroundColor: '#f5f5f5' }}>
-      <View style={{ flex: 1, justifyContent: 'center' }}>
-        {!imageUri ? (
-          <Button mode="contained" onPress={pickImage}>
-            Select Receipt Image
-          </Button>
+    <View style={styles.container}>
+      {/* Image preview / empty state */}
+      <Surface style={styles.previewCard}>
+        {imageUri ? (
+          <Image source={{ uri: imageUri }} style={styles.preview} />
         ) : (
-          <View>
-            <Button mode="contained" onPress={pickImage} style={{ marginBottom: 16 }}>
-              Change Image
-            </Button>
-            <Button mode="contained" onPress={scanReceipt} disabled={loading} loading={loading}>
-              {loading ? 'Scanning...' : 'Scan Receipt'}
-            </Button>
+          <View style={styles.empty}>
+            <MaterialIcons name="receipt-long" size={48} color="#cbd5e1" />
+            <Text variant="bodyMedium" style={styles.emptyTxt}>
+              No receipt selected
+            </Text>
           </View>
         )}
+      </Surface>
+
+      {/* Action buttons */}
+      <View style={styles.actions}>
+        <Button
+          icon="camera"
+          mode="contained-tonal"
+          onPress={takePhoto}
+          textColor="#fff"
+          disabled={loading}
+          style={styles.btn}>
+          Take Photo
+        </Button>
+        <Button
+          icon="image"
+          mode="contained-tonal"
+          textColor="#fff"
+          buttonColor='#2563eb'
+          onPress={pickFromGallery}
+          disabled={loading}
+          style={styles.btn}>
+          Gallery
+        </Button>
       </View>
 
+      <Button
+        mode="contained"
+        onPress={scanReceipt}
+        disabled={!imageUri || loading}
+        loading={loading}
+        textColor="#fff"
+        style={styles.scanBtn}>
+        {loading ? 'Scanning…' : 'Scan Receipt'}
+      </Button>
+
+      {/* Result card */}
       {receiptData && (
-        <Card style={{ marginTop: 20 }}>
-          <Card.Content>
-            <Text variant="titleLarge">Receipt Details</Text>
-            <Text variant="bodyMedium">
-              <Text style={{ fontWeight: 'bold' }}>Vendor:</Text> {receiptData.vendor_name}
+        <Surface style={styles.resultCard} elevation={1}>
+          <View style={styles.row}>
+            <Text variant="bodyLarge" numberOfLines={1} style={styles.mainText}>
+              {receiptData.vendor_name}
             </Text>
-            <Text variant="bodyMedium">
-              <Text style={{ fontWeight: 'bold' }}>Total:</Text> ${receiptData.total_amount}
+            <Text variant="titleMedium" style={styles.total}>
+              ${Number(receiptData.total_amount).toFixed(2)}
             </Text>
-            <Text variant="bodyMedium">
-              <Text style={{ fontWeight: 'bold' }}>Tax:</Text> ${receiptData.tax}
+          </View>
+
+          <Divider style={{ marginVertical: 8 }} />
+
+          <View style={styles.metaRow}>
+            <Text variant="bodySmall" style={styles.metaLabel}>
+              Date
             </Text>
-            <Text variant="bodyMedium">
-              <Text style={{ fontWeight: 'bold' }}>Date:</Text> {receiptData.date}
+            <Text variant="bodySmall" style={styles.metaValue}>
+              {receiptData.date}
             </Text>
-            <Text variant="bodyMedium">
-              <Text style={{ fontWeight: 'bold' }}>Category:</Text> {receiptData.category}
+          </View>
+
+          <View style={styles.metaRow}>
+            <Text variant="bodySmall" style={styles.metaLabel}>
+              Tax
             </Text>
-          </Card.Content>
-        </Card>
+            <Text variant="bodySmall" style={styles.metaValue}>
+              ${Number(receiptData.tax).toFixed(2)}
+            </Text>
+          </View>
+
+          <View style={styles.metaRow}>
+            <Text variant="bodySmall" style={styles.metaLabel}>
+              Category
+            </Text>
+            <Text variant="bodySmall" style={[styles.metaValue, styles.cap]}>
+              {receiptData.category}
+            </Text>
+          </View>
+        </Surface>
       )}
     </View>
   );
 }
+
+/* ---------- styles ---------- */
+const styles = StyleSheet.create({
+  container: { flex: 1, padding: 20 },
+  title: { textAlign: 'center', marginBottom: 16 },
+  previewCard: {
+    borderRadius: 16,
+    backgroundColor: '#fff',
+    padding: 12,
+    marginBottom: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  preview: { width: '100%', height: 240, borderRadius: 12 },
+  empty: { paddingVertical: 48, alignItems: 'center' },
+  emptyTxt: { color: '#94a3b8', marginTop: 8 },
+  actions: { flexDirection: 'row', gap: 12, marginBottom: 12 },
+  btn: { flex: 1, backgroundColor: '#2563eb' },
+  scanBtn: { marginBottom: 16 },
+
+  label: { fontWeight: '600', color: '#0f172a' },
+  resultCard: {
+    borderRadius: 16,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    backgroundColor: '#ffffff',
+  },
+  row: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  mainText: { flexShrink: 1, color: '#0f172a' },
+  total: { fontWeight: '600', color: '#0f172a' },
+  metaRow: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 4 },
+  metaLabel: { color: '#64748b' },
+  metaValue: { color: '#334155', fontWeight: '500' },
+  cap: { textTransform: 'capitalize' },
+});

@@ -6,7 +6,7 @@ export async function extractReceiptData(imageBase64: string) {
   try {
     const genAI = new GoogleGenerativeAI(API_KEY);
     const model = genAI.getGenerativeModel({
-      model: 'gemini-1.5-flash',
+      model: 'gemini-2.5-flash-lite',
       safetySettings: [
         {
           category: HarmCategory.HARM_CATEGORY_HARASSMENT,

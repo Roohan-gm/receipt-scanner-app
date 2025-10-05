@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "Receipt Scanner",
-    "slug": "receipt-scanner-app",
+    "slug": "receipt-scanner",
     "version": "1.0.0",
 
     "web": {
@@ -12,7 +12,14 @@
       "tsconfigPaths": true
     },
 
-    "plugins": [],
+    "plugins": [
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "The app accesses your photos to scan receipts"
+        }
+      ]
+    ],
 
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -26,13 +33,15 @@
     },
     "assetBundlePatterns": ["**/*"],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.roohan.receiptscanner"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.roohan.receiptscanner"
     }
   }
 }

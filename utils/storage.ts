@@ -29,7 +29,7 @@ export const getReceipts = async (): Promise<Receipt[]> => {
   return raw ? JSON.parse(raw) : [];
 };
 
-export const deleteReceipts = async (id: string): Promise<void> => {
+export const deleteReceipt = async (id: string): Promise<void> => {
   const current = await getReceipts();
   const filtered = current.filter((r) => r.id !== id);
   await AsyncStorage.setItem(RECEIPTS_KEY, JSON.stringify(filtered));
