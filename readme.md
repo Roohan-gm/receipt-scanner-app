@@ -21,11 +21,11 @@ A React Native Expo application that leverages AI to scan receipts, extract key 
    npm install
 ```
 
-2.**Go to Google AI Studio**
+2. **Go to Google AI Studio**
 
- 1. Visit Google AI Studio
- 2. Create a new project and generate your API key
- 3. Create a .env file in your project root:
+   1. Visit Google AI Studio
+   2. Create a new project and generate your API key
+   3. Create a .env file in your project root:
 
 ```bash
 EXPO_PUBLIC_GEMINI_API_KEY=your_api_key_here
@@ -33,7 +33,7 @@ EXPO_PUBLIC_GEMINI_API_KEY=your_api_key_here
 
 "Note: The application uses the gemini-2.5-flash-lite model for optimal performance and cost efficiency."
 
-3.**Launch the Application**
+3. **Launch the Application**
 
 ```bash
    npx expo start
