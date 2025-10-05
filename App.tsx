@@ -70,57 +70,21 @@ export default function App() {
               name="Scan"
               component={ScanReceiptScreen}
               options={{
-                headerTitle: 'Scan Receipt',
-                headerTitleAlign: 'center', // iOS & Android consistency
-                headerTintColor: '#3B82F6', // theme-aware back button & title
-                headerStyle: {
-                  backgroundColor: '#f5f5f5', // theme color token
-                  elevation: 0, // remove Android shadow
-                  shadowOpacity: 0, // remove iOS shadow
-                },
-                headerTitleStyle: {
-                  fontWeight: '900', // semibold is sharper on device
-                  fontSize: 24,
-                  color: '#111827', // theme-aware text color
-                },
+                headerShown: false,
               }}
             />
             <Tab.Screen
               name="Receipts"
               component={MyReceiptsScreen}
               options={{
-                headerTitle: 'My Receipts',
-                headerTitleAlign: 'center', // iOS & Android consistency
-                headerTintColor: '#3B82F6', // theme-aware back button & title
-                headerStyle: {
-                  backgroundColor: '#f5f5f5', // theme color token
-                  elevation: 0, // remove Android shadow
-                  shadowOpacity: 0, // remove iOS shadow
-                },
-                headerTitleStyle: {
-                  fontWeight: '900', // semibold is sharper on device
-                  fontSize: 24,
-                  color: '#111827', // theme-aware text color
-                },
+                headerShown: false,
               }}
             />
             <Tab.Screen
               name="Summary"
               component={MonthlySummaryScreen}
               options={{
-                headerTitle: 'Monthly Summary',
-                headerTitleAlign: 'center', // iOS & Android consistency
-                headerTintColor: '#3B82F6', // theme-aware back button & title
-                headerStyle: {
-                  backgroundColor: '#f5f5f5', // theme color token
-                  elevation: 0, // remove Android shadow
-                  shadowOpacity: 0, // remove iOS shadow
-                },
-                headerTitleStyle: {
-                  fontWeight: '900', // semibold is sharper on device
-                  fontSize: 24,
-                  color: '#111827', // theme-aware text color
-                },
+                headerShown: false,
               }}
             />
           </Tab.Navigator>

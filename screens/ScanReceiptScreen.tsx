@@ -1,15 +1,36 @@
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { View, StyleSheet, Alert, Image } from 'react-native';
-import { Button, Text, Surface, Divider } from 'react-native-paper';
+import { Button, Text, Surface, Divider, useTheme } from 'react-native-paper';
 import * as ImagePicker from 'expo-image-picker';
 import { extractReceiptData } from '../utils/geminiApi';
 import { Receipt, saveReceipt } from '../utils/storage';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import { useFocusEffect } from '@react-navigation/native';
 
 export default function ScanReceiptScreen() {
   const [imageUri, setImageUri] = useState<string | null>(null);
   const [receiptData, setReceiptData] = useState<Receipt | null>(null);
   const [loading, setLoading] = useState(false);
+  const theme = useTheme();
+
+  useFocusEffect(
+    useCallback(() => {
+      setReceiptData(null);
+      setImageUri(null);
+      return () => {};
+    }, [])
+  );
+
+  const btnTheme = {
+    ...theme,
+    colors: {
+      ...theme.colors,
+      primary: '#2563eb', // active background
+      onPrimary: '#ffffff', // active text/icon
+      onSurfaceDisabled: '#9ca3af', // disabled text/icon
+      surfaceDisabled: '#ffffff', // disabled background
+    },
+  };
 
   /* ---------- permission helpers ---------- */
   const requestCameraPermission = async () => {
@@ -81,6 +102,9 @@ export default function ScanReceiptScreen() {
   /* ---------- UI ---------- */
   return (
     <View style={styles.container}>
+      <View style={styles.header}>
+        <Text style={styles.headerTitle}>Scan Receipt</Text>
+      </View>
       {/* Image preview / empty state */}
       <Surface style={styles.previewCard}>
         {imageUri ? (
@@ -99,20 +123,20 @@ export default function ScanReceiptScreen() {
       <View style={styles.actions}>
         <Button
           icon="camera"
-          mode="contained-tonal"
+          mode="contained"
           onPress={takePhoto}
-          textColor="#fff"
           disabled={loading}
+          theme={btnTheme}
           style={styles.btn}>
           Take Photo
         </Button>
+
         <Button
           icon="image"
-          mode="contained-tonal"
-          textColor="#fff"
-          buttonColor='#2563eb'
+          mode="contained"
           onPress={pickFromGallery}
           disabled={loading}
+          theme={btnTheme}
           style={styles.btn}>
           Gallery
         </Button>
@@ -123,7 +147,7 @@ export default function ScanReceiptScreen() {
         onPress={scanReceipt}
         disabled={!imageUri || loading}
         loading={loading}
-        textColor="#fff"
+        theme={btnTheme}
         style={styles.scanBtn}>
         {loading ? 'Scanning…' : 'Scan Receipt'}
       </Button>
@@ -176,7 +200,18 @@ export default function ScanReceiptScreen() {
 
 /* ---------- styles ---------- */
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20 },
+  header: {
+    marginBottom: 20,
+    marginTop: 30,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  headerTitle: {
+    fontSize: 22,
+    fontWeight: '800',
+    color: '#111827',
+  },
+  container: { flex: 1, padding: 20, backgroundColor: '#E2E2E6' },
   title: { textAlign: 'center', marginBottom: 16 },
   previewCard: {
     borderRadius: 16,
@@ -186,11 +221,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  preview: { width: '100%', height: 240, borderRadius: 12 },
+  preview: { width: '100%', height: 240, borderRadius: 12, objectFit: 'cover' },
   empty: { paddingVertical: 48, alignItems: 'center' },
   emptyTxt: { color: '#94a3b8', marginTop: 8 },
   actions: { flexDirection: 'row', gap: 12, marginBottom: 12 },
-  btn: { flex: 1, backgroundColor: '#2563eb' },
+  btn: { flex: 1 },
   scanBtn: { marginBottom: 16 },
 
   label: { fontWeight: '600', color: '#0f172a' },
