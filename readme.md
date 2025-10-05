@@ -13,18 +13,19 @@ A React Native Expo app that scans receipts, extracts key details using Google G
 
 1. **Clone the repository**
 
-   ```bash
-   git clone https://github.com/your-username/receipt-scanner-app.git
+   git clone https://github.com/Roohan-gm/receipt-scanner-app.git
 
    cd receipt-scanner-app
 
    npm install
 
-   Go to Google AI Studio
-   Create a new project and get your API key
-   Create a .env file in the project root:
+Go to Google AI Studio
+Create a new project and get your API key
+Create a .env file in the project root:
 
-   EXPO_PUBLIC_GEMINI_API_KEY=your_api_key_here
+EXPO_PUBLIC_GEMINI_API_KEY=your_api_key_here
 
+````bash
    npx expo start
-   ```
+    ```
+````
